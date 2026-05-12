@@ -1,0 +1,24 @@
+services:
+  diet-advisor:
+    build: ./diet-advisor
+    ports:
+      - "8005:8000"
+    restart: unless-stopped
+
+  sentiment-analyzer:
+    build: ./sentiment-analyzer
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+
+  text-summarizer:
+    build: ./text-summarizer
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+
+  calculator:
+    build: ./calculator
+    ports:
+      - "8004:8000"
+    restart: unless-stopped
