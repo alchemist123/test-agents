@@ -1,7 +1,7 @@
 """
 Workflow 2: Data Transform Pipeline
 ────────────────────────────────────
-HTTP_TRIGGER → TRANSFORM (extract fields via JMESPath) → TRANSFORM (format with Jinja2) → END
+A2A_START → TRANSFORM (extract fields via JMESPath) → TRANSFORM (format with Jinja2) → END
 
 Tests: chained TRANSFORM nodes with different modes (jmespath + jinja2).
 
@@ -22,14 +22,22 @@ CANVAS = {
     "nodes": [
         {
             "id": "trigger",
-            "type": "HTTP_TRIGGER",
+            "type": "A2A_START",
             "version": "1",
             "position": {"x": 50, "y": 200},
             "metadata": {
                 "title": "Start",
                 "description": 'POST /run with {"user": {"name": "...", "email": "..."}, "items": [...], "total": N}',
             },
-            "config": {"method": "POST", "path": "/run"},
+            "config": {
+                "input_mode": "json",
+                "state_key": "wf",
+                "payload_schema": {
+                    "fields": [
+                        {"name": 'items', "type": 'array', "description": 'Records to process', "required": True},
+                    ]
+                },
+            },
             "io": {"input_schema": {"type": "object"}, "output_schema": {"type": "object"}},
             "policies": {"timeout_seconds": 60, "retry": {"max_attempts": 1}, "on_error": "fail"},
         },

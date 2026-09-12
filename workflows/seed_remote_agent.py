@@ -1,7 +1,7 @@
 """
 Workflow 3: Remote Agent Orchestration
 ───────────────────────────────────────
-HTTP_TRIGGER → REMOTE_AGENT (diet-advisor) → REMOTE_AGENT (sentiment-analyzer) → TRANSFORM → END
+A2A_START → REMOTE_AGENT (diet-advisor) → REMOTE_AGENT (sentiment-analyzer) → TRANSFORM → END
 
 Tests: chained REMOTE_AGENT nodes — diet advisor responds, sentiment analyzer analyzes the advice.
 
@@ -22,11 +22,19 @@ CANVAS = {
     "nodes": [
         {
             "id": "trigger",
-            "type": "HTTP_TRIGGER",
+            "type": "A2A_START",
             "version": "1",
             "position": {"x": 50, "y": 200},
             "metadata": {"title": "Start", "description": 'POST /run with {"message": "your diet question"}'},
-            "config": {"method": "POST", "path": "/run"},
+            "config": {
+                "input_mode": "json",
+                "state_key": "wf",
+                "payload_schema": {
+                    "fields": [
+                        {"name": 'message', "type": 'text', "description": 'Text for the remote agents', "required": True},
+                    ]
+                },
+            },
             "io": {"input_schema": {"type": "object"}, "output_schema": {"type": "object"}},
             "policies": {"timeout_seconds": 60, "retry": {"max_attempts": 1}, "on_error": "fail"},
         },

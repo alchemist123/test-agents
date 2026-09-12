@@ -1,10 +1,11 @@
 """
 Workflow 1: Condition Router
 ────────────────────────────
-HTTP_TRIGGER → CONDITION (routes by score threshold) → [true] TRANSFORM → END
-                                                      → [false] TRANSFORM → END
+A2A_START → CONDITION (routes by score threshold) → [high_score] TRANSFORM ─┐
+                                                    → [low_score]  TRANSFORM ─┴→ END
 
-Tests: CONDITION node with two named branches, branching edges, two TRANSFORM nodes.
+Tests: CONDITION with two named branches, branch edges keyed by branch name, and
+both branches converging on a single END — ADK permits at most one terminal node.
 """
 import httpx, sys
 
@@ -14,11 +15,20 @@ CANVAS = {
     "nodes": [
         {
             "id": "trigger",
-            "type": "HTTP_TRIGGER",
+            "type": "A2A_START",
             "version": "1",
             "position": {"x": 50, "y": 200},
-            "metadata": {"title": "Start", "description": "POST /run with {score: number, message: string}"},
-            "config": {"method": "POST", "path": "/run"},
+            "metadata": {"title": "A2A Start", "description": "Send {score: number, message: string}"},
+            "config": {
+                "input_mode": "json",
+                "state_key": "wf",
+                "payload_schema": {
+                    "fields": [
+                        {"name": 'score', "type": 'integer', "description": 'Score used for routing', "required": True},
+                        {"name": 'message', "type": 'string', "description": 'Message echoed back', "required": True},
+                    ]
+                },
+            },
             "io": {"input_schema": {"type": "object"}, "output_schema": {"type": "object"}},
             "policies": {"timeout_seconds": 60, "retry": {"max_attempts": 1}, "on_error": "fail"},
         },
@@ -64,21 +74,11 @@ CANVAS = {
             "policies": {"timeout_seconds": 30, "retry": {"max_attempts": 1}, "on_error": "fail"},
         },
         {
-            "id": "end_high",
+            "id": "end",
             "type": "END",
             "version": "1",
-            "position": {"x": 760, "y": 100},
-            "metadata": {"title": "End (Premium)", "description": ""},
-            "config": {},
-            "io": {"input_schema": {"type": "object"}, "output_schema": {"type": "object"}},
-            "policies": {"timeout_seconds": 30, "retry": {"max_attempts": 1}, "on_error": "fail"},
-        },
-        {
-            "id": "end_low",
-            "type": "END",
-            "version": "1",
-            "position": {"x": 760, "y": 320},
-            "metadata": {"title": "End (Standard)", "description": ""},
+            "position": {"x": 760, "y": 200},
+            "metadata": {"title": "End", "description": "Both branches converge here"},
             "config": {},
             "io": {"input_schema": {"type": "object"}, "output_schema": {"type": "object"}},
             "policies": {"timeout_seconds": 30, "retry": {"max_attempts": 1}, "on_error": "fail"},
@@ -86,10 +86,10 @@ CANVAS = {
     ],
     "edges": [
         {"id": "e1", "source": "trigger",        "source_handle": "output",     "target": "condition",      "target_handle": "input"},
-        {"id": "e2", "source": "condition",       "source_handle": "true",       "target": "transform_high", "target_handle": "input"},
-        {"id": "e3", "source": "condition",       "source_handle": "false",      "target": "transform_low",  "target_handle": "input"},
-        {"id": "e4", "source": "transform_high",  "source_handle": "output",     "target": "end_high",       "target_handle": "input"},
-        {"id": "e5", "source": "transform_low",   "source_handle": "output",     "target": "end_low",        "target_handle": "input"},
+        {"id": "e2", "source": "condition",       "source_handle": "high_score", "target": "transform_high", "target_handle": "input"},
+        {"id": "e3", "source": "condition",       "source_handle": "low_score",  "target": "transform_low",  "target_handle": "input"},
+        {"id": "e4", "source": "transform_high",  "source_handle": "output",     "target": "end",            "target_handle": "input"},
+        {"id": "e5", "source": "transform_low",   "source_handle": "output",     "target": "end",            "target_handle": "input"},
     ],
 }
 

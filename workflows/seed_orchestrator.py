@@ -1,7 +1,7 @@
 """
 Workflow 4: Orchestrator Agent with Multi-Tool A2A
 ────────────────────────────────────────────────────
-HTTP_TRIGGER → ORCHESTRATOR_AGENT → END
+A2A_START → ORCHESTRATOR_AGENT → END
                ↑ tools ↑
     REMOTE_AGENT (diet-advisor)
     REMOTE_AGENT (calculator)
@@ -30,11 +30,19 @@ CANVAS = {
     "nodes": [
         {
             "id": "trigger",
-            "type": "HTTP_TRIGGER",
+            "type": "A2A_START",
             "version": "1",
             "position": {"x": 50, "y": 300},
             "metadata": {"title": "Start", "description": 'POST /run with {"message": "..."}'},
-            "config": {"method": "POST", "path": "/run"},
+            "config": {
+                "input_mode": "json",
+                "state_key": "wf",
+                "payload_schema": {
+                    "fields": [
+                        {"name": 'message', "type": 'text', "description": 'Request for the orchestrator', "required": True},
+                    ]
+                },
+            },
             "io": {"input_schema": {"type": "object"}, "output_schema": {"type": "object"}},
             "policies": {"timeout_seconds": 60, "retry": {"max_attempts": 1}, "on_error": "fail"},
         },
