@@ -63,7 +63,9 @@ python seed_orchestrator.py       # Workflow 4: ORCHESTRATOR_AGENT + 3 tool agen
 python seed_tool_groups.py        # Workflow 5: parallel + sequential tool groups
 python seed_sub_agents.py         # Workflow 6: LLM_AGENT nodes used as sub-agents
 python seed_human_approval.py     # Workflow 7: pauses at input-required for a human
-python seed_all.py                # all seven
+python seed_wait.py               # Workflow 8: two branches, each pausing
+python seed_variables.py          # Workflow 9: nodes name results, later nodes read them
+python seed_all.py                # all nine
 ```
 
 ## Workflow descriptions
@@ -150,3 +152,26 @@ Approving pauses a second time, for `account` and `pay_on`; answer that with
 `--resume`, which continues the live task instead of replaying the workflow.
 Approving without `cost_centre` asks again; rejecting never needs it. Runs
 offline — no model, no MCP server, no credentials.
+
+### 8. Wait
+`A2A_START → PARALLEL_FORK → [poll] → WAIT 3s → TRANSFORM ─┐`
+`                          → [notify] → WAIT 1s → TRANSFORM ┴→ MERGE → END`
+
+Two branches, each pausing. The run takes about as long as the *longer* wait,
+not the sum: `asyncio.sleep` yields the event loop, so a waiting branch does not
+hold up the one beside it. Measured from the trace — the 1s wait completes at
++1.03s, the 3s at +3.04s, END at +3.06s.
+
+Runs offline — no model, no MCP server, no credentials.
+
+### 9. Variables
+`A2A_START → TRANSFORM → TRANSFORM → CONDITION → TRANSFORM → END`
+
+The entry node saves `order`, the pricing node saves `priced`, and the third
+node builds a label from **both** — even though its edge only carries the
+pricing step's output. The condition then branches on `vars['priced']['total']`.
+
+    python run_once.py '{"sku": "WIDGET", "qty": 2}'   # tier "standard"
+    python run_once.py '{"sku": "WIDGET", "qty": 8}'   # tier "bulk"
+
+Runs offline — no model, no MCP server, no credentials.

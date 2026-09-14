@@ -1,4 +1,4 @@
-"""Run all 7 workflow seed scripts against the running backend."""
+"""Run all 11 workflow seed scripts against the running backend."""
 from seed_condition_router import seed as seed_condition
 from seed_data_pipeline    import seed as seed_pipeline
 from seed_remote_agent     import seed as seed_remote
@@ -6,6 +6,10 @@ from seed_orchestrator     import seed as seed_orchestrator
 from seed_tool_groups      import seed as seed_tool_groups
 from seed_sub_agents       import seed as seed_sub_agents
 from seed_human_approval   import seed as seed_human_approval
+from seed_wait            import seed as seed_wait
+from seed_variables       import seed as seed_variables
+from seed_field_mapping   import seed as seed_field_mapping
+from seed_parallel_fan    import seed as seed_parallel_fan
 
 if __name__ == "__main__":
     print("=== 1. Condition Router ===")
@@ -28,5 +32,17 @@ if __name__ == "__main__":
 
     print("\n=== 7. Human Approval ===")
     seed_human_approval()
+
+    print("\n=== 8. Wait ===")
+    seed_wait()
+
+    print("\n=== 9. Variables ===")
+    seed_variables()
+
+    print("\n=== 10. Field Mapping ===")
+    seed_field_mapping()
+
+    print("\n=== 11. Parallel Fan-out ===")
+    seed_parallel_fan()
 
     print("\n✓ All workflows seeded.")
