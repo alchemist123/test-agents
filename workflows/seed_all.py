@@ -1,4 +1,4 @@
-"""Run all 12 workflow seed scripts against the running backend."""
+"""Run all 13 workflow seed scripts against the running backend."""
 from seed_condition_router import seed as seed_condition
 from seed_data_pipeline    import seed as seed_pipeline
 from seed_remote_agent     import seed as seed_remote
@@ -11,6 +11,7 @@ from seed_variables       import seed as seed_variables
 from seed_field_mapping   import seed as seed_field_mapping
 from seed_parallel_fan    import seed as seed_parallel_fan
 from seed_mcp_tool        import seed as seed_mcp_tool
+from seed_mcp_human_gate  import seed as seed_mcp_human_gate
 
 if __name__ == "__main__":
     print("=== 1. Condition Router ===")
@@ -48,5 +49,8 @@ if __name__ == "__main__":
 
     print("\n=== 12. MCP Tool Call ===")
     seed_mcp_tool()
+
+    print("\n=== 13. MCP Tool Behind a Human Gate ===")
+    seed_mcp_human_gate()
 
     print("\n✓ All workflows seeded.")
