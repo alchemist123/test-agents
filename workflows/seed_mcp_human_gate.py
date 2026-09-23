@@ -80,7 +80,8 @@ def _edge(edge_id, source, target, source_handle="output", target_handle="input"
 
 
 CANVAS = {
-    "schema_version": 7,
+    # No schema_version: the backend stamps the current one, so a seed
+    # cannot be stranded on an old version by a later migration.
     "nodes": [
         _node("trigger", "A2A_START", "Request", {
             "input_mode": "json",

@@ -67,7 +67,8 @@ def _fields(*specs):
 
 
 CANVAS = {
-    "schema_version": 4,
+    # No schema_version: the backend stamps the current one, so a seed
+    # cannot be stranded on an old version by a later migration.
     "nodes": [
         _node("trigger", "A2A_START", "A2A Start", {
             "input_mode": "json",
